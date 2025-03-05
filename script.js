@@ -20,12 +20,16 @@ startButton.addEventListener("click", function () {
     let div = document.createElement("div");
     let card = shuffledCards[i];
     div.className = "card";
-    div.innerHTML = `<img class="image-cover" src="/memory-game/images/card-back.png" alt="${card.name}">`;
+    div.innerHTML = `<img class="image-cover" src="/memory-game/images/card-back.png">`;
     document.getElementById("container").appendChild(div);
+    let cardBack = true;
     div.addEventListener("click", function () {
-      console.log(div.innerHTML);
-      if (div.innerHTML.includes("card-back.png")) {
+      if (cardBack === true) {
         div.innerHTML = `<img class="image-fit" src="${card.img}">`;
+        cardBack = false;
+      } else {
+        div.innerHTML = `<img class="image-cover" src="/memory-game/images/card-back.png">`;
+        cardBack = true;
       }
     });
   }
