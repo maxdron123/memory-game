@@ -17,19 +17,30 @@ startButton.addEventListener("click", function () {
   startButton.classList.toggle("hidden");
   let shuffledCards = cards.sort(() => Math.random() - 0.5);
   for (let i = 0; i < shuffledCards.length; i++) {
-    let div = document.createElement("div");
+    let cardContainer = document.createElement("div");
     let card = shuffledCards[i];
-    div.className = "card";
-    div.innerHTML = `<img class="image-cover" src="/memory-game/images/card-back.png">`;
-    document.getElementById("container").appendChild(div);
-    let cardBack = true;
-    div.addEventListener("click", function () {
-      if (cardBack === true) {
-        div.innerHTML = `<img class="image-fit" src="${card.img}">`;
-        cardBack = false;
+    cardContainer.className = "card";
+    let cardInner = document.createElement("div");
+    document.getElementById("container").appendChild(cardContainer);
+    cardInner.className = "card-inner";
+    cardContainer.appendChild(cardInner);
+    let cardFront = document.createElement("div");
+    cardFront.className = "card-front";
+    cardFront.innerHTML = `<img class="image-cover" src="/memory-game/images/card-back.png">`;
+    cardInner.appendChild(cardFront);
+    let cardBack = document.createElement("div");
+    cardBack.className = "card-back";
+    cardBack.innerHTML = `<img class="image-fit" src="${card.img}">`;
+    cardBack.classList.toggle("transform");
+    cardInner.appendChild(cardBack);
+    let cardFlip = false;
+    cardContainer.addEventListener("click", function () {
+      if (cardFlip === false) {
+        cardInner.classList.toggle("transform");
+        cardFlip = true;
       } else {
-        div.innerHTML = `<img class="image-cover" src="/memory-game/images/card-back.png">`;
-        cardBack = true;
+        cardInner.classList.toggle("transform");
+        cardFlip = false;
       }
     });
   }
