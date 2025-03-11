@@ -12,13 +12,15 @@ let cards = [
   { id: 11, name: "Card 11", img: "images/skull.png" },
   { id: 12, name: "Card 12", img: "images/smile.png" },
 ];
+
 let startButton = document.querySelector("#start-btn");
+
 startButton.addEventListener("click", function () {
   startButton.classList.toggle("hidden");
   let shuffledCards = cards.sort(() => Math.random() - 0.5);
-  for (let i = 0; i < shuffledCards.length; i++) {
+
+  shuffledCards.forEach((card) => {
     let cardContainer = document.createElement("div");
-    let card = shuffledCards[i];
     cardContainer.className = "card";
     let cardInner = document.createElement("div");
     document.getElementById("container").appendChild(cardContainer);
@@ -34,6 +36,7 @@ startButton.addEventListener("click", function () {
     cardBack.classList.toggle("transform");
     cardInner.appendChild(cardBack);
     let cardFlip = false;
+
     cardContainer.addEventListener("click", function () {
       if (cardFlip === false) {
         cardInner.classList.toggle("transform");
@@ -43,5 +46,5 @@ startButton.addEventListener("click", function () {
         cardFlip = false;
       }
     });
-  }
+  });
 });
