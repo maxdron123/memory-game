@@ -12,6 +12,7 @@ body {
   flex-direction: column;
   margin: 0;
   padding: 0;
+  justify-content: center;
   background-image: url("https://images.fineartamerica.com/images/artworkimages/mediumlarge/2/wooden-table-background-tim-hester.jpg");
   background-size: cover;
 }
@@ -22,10 +23,9 @@ body {
   height: 80%;
   margin: 0 auto;
   display: grid;
-  column-gap: 10px;
-  row-gap: 25%;
+  row-gap: 5%;
   grid-template-columns: 25% 25% 25% 25%;
-  grid-template-rows: 20% 20% 20%;
+  grid-template-rows: 30% 30% 30%;
 }
 
 .card {
