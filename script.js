@@ -13,17 +13,27 @@ let cards = [
   { id: 12, name: "Card 12", img: "images/smile.png" },
 ];
 
-let startButton = document.querySelector("#start-btn");
+function shuffleCards(cards) {
+  for (let i = cards.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    let k = cards[i];
+    cards[i] = cards[j];
+    cards[j] = k;
+  }
+}
+
+const startButton = document.querySelector("#start-btn");
+const container = document.getElementById("container");
 
 startButton.addEventListener("click", function () {
   startButton.classList.toggle("hidden");
-  let shuffledCards = cards.sort(() => Math.random() - 0.5);
+  shuffleCards(cards);
 
-  shuffledCards.forEach((card) => {
+  cards.forEach((card) => {
     let cardContainer = document.createElement("div");
     cardContainer.className = "card";
     let cardInner = document.createElement("div");
-    document.getElementById("container").appendChild(cardContainer);
+    container.appendChild(cardContainer);
     cardInner.className = "card-inner";
     cardContainer.appendChild(cardInner);
     let cardFront = document.createElement("div");
@@ -33,18 +43,13 @@ startButton.addEventListener("click", function () {
     let cardBack = document.createElement("div");
     cardBack.className = "card-back";
     cardBack.innerHTML = `<img class="image-fit" src="${card.img}">`;
-    cardBack.classList.toggle("transform");
+    cardBack.classList.add("transform");
     cardInner.appendChild(cardBack);
     let cardFlip = false;
 
     cardContainer.addEventListener("click", function () {
-      if (cardFlip === false) {
-        cardInner.classList.toggle("transform");
-        cardFlip = true;
-      } else {
-        cardInner.classList.toggle("transform");
-        cardFlip = false;
-      }
+      cardInner.classList.toggle("transform");
+      cardFlip = !cardFlip;
     });
   });
 });
