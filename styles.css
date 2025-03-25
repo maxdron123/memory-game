@@ -2,9 +2,14 @@ header {
   background-image: url("https://as2.ftcdn.net/v2/jpg/05/27/04/87/1000_F_527048753_LwwnBapBgDsbJR4cPuxE5J1xgAHUQocF.jpg");
   background-size: cover;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
   display: flex;
   height: 100px;
+}
+
+#turn-counter {
+  justify-self: right;
+  font-weight: bold;
 }
 
 body {

@@ -22,34 +22,82 @@ function shuffleCards(cards) {
   }
 }
 
+function timerSetup() {
+  const timeFrom = new Date().getTime() + 90000;
+  const timer = document.createElement("div");
+  document.querySelector("header").appendChild(timer);
+  const interval = setInterval(function () {
+    const timeTo = new Date().getTime();
+    const distance = timeFrom - timeTo;
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    const display = `Time: ${minutes} Seconds: ${seconds}`;
+    timer.innerHTML = display;
+    if (distance < 0) {
+      clearInterval(interval);
+      timer.innerHTML = "Time is UP!";
+    }
+  }, 1000);
+}
+
+function unflip(array) {
+  array.forEach((card) => card.classList.remove("transform"));
+}
+
 const startButton = document.querySelector("#start-btn");
 const container = document.getElementById("container");
+let turns = 0;
 
 startButton.addEventListener("click", function () {
   startButton.classList.toggle("hidden");
+  timerSetup();
   shuffleCards(cards);
+  const turnsContainer = document.getElementById("turn-counter");
+  turnsContainer.innerHTML = "Turns:";
+  const turnsNumber = document.createElement("p");
+  turnsContainer.appendChild(turnsNumber);
+  turnsNumber.innerHTML = turns;
+  let flippedCards = [];
 
   cards.forEach((card) => {
-    let cardContainer = document.createElement("div");
+    const cardContainer = document.createElement("div");
     cardContainer.className = "card";
-    let cardInner = document.createElement("div");
+    const cardInner = document.createElement("div");
     container.appendChild(cardContainer);
     cardInner.className = "card-inner";
     cardContainer.appendChild(cardInner);
-    let cardFront = document.createElement("div");
+    const cardFront = document.createElement("div");
     cardFront.className = "card-front";
     cardFront.innerHTML = `<img class="image-cover" src="images/card-back.png">`;
     cardInner.appendChild(cardFront);
-    let cardBack = document.createElement("div");
+    const cardBack = document.createElement("div");
     cardBack.className = "card-back";
     cardBack.innerHTML = `<img class="image-fit" src="${card.img}">`;
     cardBack.classList.add("transform");
     cardInner.appendChild(cardBack);
     let cardFlip = false;
 
-    cardContainer.addEventListener("click", function () {
+    function flipCard() {
       cardInner.classList.toggle("transform");
       cardFlip = !cardFlip;
+      flippedCards.push(cardInner);
+    }
+
+    cardContainer.addEventListener("click", function () {
+      flipCard();
+      console.log(flippedCards);
+      if (cardFlip) {
+        setTimeout(function () {
+          unflip(flippedCards);
+          flippedCards = [];
+        }, 3000);
+        turns += 1;
+        turnsNumber.innerHTML = `${turns}`;
+      }
+      if (flippedCards.length >= 3) {
+        unflip(flippedCards);
+        flippedCards = [];
+      }
     });
   });
 });
