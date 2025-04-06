@@ -37,10 +37,24 @@ function doubleArray(array) {
   return array.concat(array);
 }
 
+function win(container, button, main) {
+  container.innerHTML = "";
+  const winText = document.createElement("h1");
+  winText.textContent = "You Win!";
+  main.appendChild(winText);
+  button.classList.toggle("hidden");
+  button.innerHTML = "Restart";
+  winText.appendChild(button);
+  button.addEventListener("click", () => {
+    window.location.reload();
+  });
+}
+
+const main = document.querySelector(".main");
 const startButton = document.querySelector("#start-btn");
 const container = document.getElementById("container");
 let turns = 0;
-let cardsPull = [];
+let pairsCount = 0;
 
 async function startGame() {
   try {
@@ -62,8 +76,6 @@ async function startGame() {
         turnsNumber.innerHTML = turns;
         let flippedCards = [];
         doubledCards.forEach((card) => {
-          cardsPull.push(card);
-          console.log(cardsPull);
           const cardContainer = document.createElement("div");
           cardContainer.className = "card";
           const cardInner = document.createElement("div");
@@ -115,18 +127,16 @@ async function startGame() {
 
             if (flippedCards.length === 2) {
               if (flippedCards[0].innerHTML === flippedCards[1].innerHTML) {
-                cardsPull.forEach((card) => {
-                  if (
-                    flippedCards[0].innerHTML.includes(card.img) &&
-                    flippedCards[1].innerHTML.includes(card.img)
-                  ) {
-                    removeFromPull(cardsPull.indexOf(card), cardsPull);
-                    console.log(cardsPull);
-                  }
-                });
+                pairsCount += 1;
+                console.log(pairsCount);
+                if (pairsCount >= 6) {
+                  win(container, startButton, main);
+                }
+
                 setTimeout(() => {
                   flippedCards[0].style.display = "none";
                   flippedCards[1].style.display = "none";
+                  flippedCards = [];
                 }, 1000);
               }
             }
