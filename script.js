@@ -7,6 +7,10 @@ function shuffleCards(cards) {
   }
 }
 
+async function removeFromPull(index, array1) {
+  await array1.splice(index, 1);
+}
+
 function timerSetup() {
   const timeFrom = new Date().getTime() + 90000;
   const timer = document.createElement("div");
@@ -29,74 +33,121 @@ function unflip(array) {
   array.forEach((card) => card.classList.remove("transform"));
 }
 
+function doubleArray(array) {
+  return array.concat(array);
+}
+
+function win(container, button, main) {
+  container.innerHTML = "";
+  const winText = document.createElement("h1");
+  winText.textContent = "You Win!";
+  main.appendChild(winText);
+  button.classList.toggle("hidden");
+  button.innerHTML = "Restart";
+  winText.appendChild(button);
+  button.addEventListener("click", () => {
+    window.location.reload();
+  });
+}
+
+const main = document.querySelector(".main");
 const startButton = document.querySelector("#start-btn");
 const container = document.getElementById("container");
 let turns = 0;
-fetch(
-  "https://raw.githubusercontent.com/maxdron123/maxdron123.github.io/refs/heads/main/cards.json"
-)
-  .then((response) => response.json())
-  .then((cards) =>
-    startButton.addEventListener("click", function () {
-      startButton.classList.toggle("hidden");
-      timerSetup();
-      shuffleCards(cards);
-      const turnsContainer = document.getElementById("turn-counter");
-      turnsContainer.innerHTML = "Turns:";
-      const turnsNumber = document.createElement("p");
-      turnsContainer.appendChild(turnsNumber);
-      turnsNumber.innerHTML = turns;
-      let flippedCards = [];
+let pairsCount = 0;
 
-      cards.forEach((card) => {
-        const cardContainer = document.createElement("div");
-        cardContainer.className = "card";
-        const cardInner = document.createElement("div");
-        container.appendChild(cardContainer);
-        cardInner.className = "card-inner";
-        cardContainer.appendChild(cardInner);
-        const cardFront = document.createElement("div");
-        cardFront.className = "card-front";
-        cardFront.innerHTML = `<img class="image-cover" src="images/card-back.png">`;
-        cardInner.appendChild(cardFront);
-        const cardBack = document.createElement("div");
-        cardBack.className = "card-back";
-        cardBack.innerHTML = `<img class="image-fit" src="${card.img}">`;
-        cardBack.classList.add("transform");
-        cardInner.appendChild(cardBack);
-        let cardFlip = false;
+async function startGame() {
+  try {
+    const request = await fetch(
+      "https://raw.githubusercontent.com/maxdron123/maxdron123.github.io/refs/heads/main/cards.json"
+    );
+    if (request.ok) {
+      const cards = await request.json();
+      const doubledCards = doubleArray(cards);
+      console.log(doubledCards);
+      startButton.addEventListener("click", () => {
+        startButton.classList.toggle("hidden");
+        timerSetup();
+        shuffleCards(doubledCards);
+        const turnsContainer = document.getElementById("turn-counter");
+        turnsContainer.innerHTML = "Turns:";
+        const turnsNumber = document.createElement("p");
+        turnsContainer.appendChild(turnsNumber);
+        turnsNumber.innerHTML = turns;
+        let flippedCards = [];
+        doubledCards.forEach((card) => {
+          const cardContainer = document.createElement("div");
+          cardContainer.className = "card";
+          const cardInner = document.createElement("div");
+          container.appendChild(cardContainer);
+          cardInner.className = "card-inner";
+          cardContainer.appendChild(cardInner);
+          const cardFront = document.createElement("div");
+          cardFront.className = "card-front";
+          cardFront.innerHTML = `<img class="image-cover" src="images/card-back.png">`;
+          cardInner.appendChild(cardFront);
+          const cardBack = document.createElement("div");
+          cardBack.className = "card-back";
+          cardBack.innerHTML = `<img class="image-fit" src="${card.img}">`;
+          cardBack.classList.add("transform");
+          cardInner.appendChild(cardBack);
+          let cardFlip = false;
 
-        function flipCard() {
-          cardInner.classList.toggle("transform");
-          cardFlip = !cardFlip;
-          flippedCards.push(cardInner);
-          console.log(cardInner);
-        }
-
-        cardContainer.addEventListener("click", function () {
-          flipCard();
-          if (
-            cardInner.classList.contains("transform") &&
-            flippedCards.length <= 2
-          ) {
-            turns += 1;
+          function flipCard() {
+            cardInner.classList.toggle("transform");
+            cardFlip = !cardFlip;
+            flippedCards.push(cardInner);
+            console.log(cardInner);
+            console.log(flippedCards[0].innerHTML);
           }
-          turnsNumber.innerHTML = turns;
-          console.log(flippedCards);
-          if (cardFlip) {
-            let timeout = setTimeout(function () {
+
+          cardContainer.addEventListener("click", function () {
+            flipCard();
+            if (
+              cardInner.classList.contains("transform") &&
+              flippedCards.length <= 2
+            ) {
+              turns += 1;
+            }
+            turnsNumber.innerHTML = turns;
+            console.log(flippedCards);
+            if (cardFlip) {
+              let timeout = setTimeout(function () {
+                unflip(flippedCards);
+                flippedCards = [];
+              }, 4000);
+              while (timeout--) {
+                window.clearTimeout(timeout);
+              }
+            }
+            if (flippedCards.length === 3) {
               unflip(flippedCards);
               flippedCards = [];
-            }, 2000);
-            while (timeout--) {
-              window.clearTimeout(timeout);
             }
-          }
-          if (flippedCards.length === 3) {
-            unflip(flippedCards);
-            flippedCards = [];
-          }
+
+            if (flippedCards.length === 2) {
+              if (flippedCards[0].innerHTML === flippedCards[1].innerHTML) {
+                pairsCount += 1;
+                console.log(pairsCount);
+                if (pairsCount >= 6) {
+                  win(container, startButton, main);
+                }
+
+                setTimeout(() => {
+                  flippedCards[0].style.display = "none";
+                  flippedCards[1].style.display = "none";
+                  flippedCards = [];
+                }, 1000);
+              }
+            }
+          });
         });
       });
-    })
-  );
+    } else {
+      throw error;
+    }
+  } catch (error) {
+    console.log(`You have an error: ${error}`);
+  }
+}
+startGame();
