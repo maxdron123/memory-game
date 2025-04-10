@@ -40,8 +40,10 @@ function doubleArray(array) {
 function win(container, button, main) {
   container.innerHTML = "";
   const winText = document.createElement("h1");
+  const winContainer = document.createElement("div");
   winText.textContent = "You Win!";
-  main.appendChild(winText);
+  main.appendChild(winContainer);
+  winContainer.appendChild(winText);
   button.classList.toggle("hidden");
   button.innerHTML = "Restart";
   winText.appendChild(button);
