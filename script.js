@@ -12,7 +12,7 @@ async function removeFromPull(index, array1) {
 }
 
 function timerSetup() {
-  const timeFrom = new Date().getTime() + 90000;
+  const timeFrom = new Date().getTime() + 5000;
   const timer = document.createElement("div");
   document.querySelector("header").appendChild(timer);
   const interval = setInterval(function () {
@@ -25,6 +25,33 @@ function timerSetup() {
     if (distance < 0) {
       clearInterval(interval);
       timer.innerHTML = "Time is UP!";
+
+      // Create game over screen
+      const gameoverScreen = document.createElement("div");
+      gameoverScreen.className = "gameover-screen";
+
+      const gameoverMessage = document.createElement("div");
+      gameoverMessage.className = "gameover-message";
+      gameoverMessage.textContent = "⏰ Time's Up! ⏰";
+
+      const gameoverStats = document.createElement("div");
+      gameoverStats.className = "win-stats";
+      gameoverStats.textContent = `You completed ${pairsCount} pairs`;
+
+      const restartBtn = document.createElement("button");
+      restartBtn.className = "restart-btn";
+      restartBtn.textContent = "Try Again";
+
+      // Assemble game over screen
+      gameoverScreen.appendChild(gameoverMessage);
+      gameoverScreen.appendChild(gameoverStats);
+      gameoverScreen.appendChild(restartBtn);
+      document.body.appendChild(gameoverScreen);
+
+      // Handle restart
+      restartBtn.addEventListener("click", () => {
+        window.location.reload();
+      });
     }
   }, 1000);
 }
@@ -38,16 +65,30 @@ function doubleArray(array) {
 }
 
 function win(container, button, main) {
-  container.innerHTML = "";
-  const winText = document.createElement("h1");
-  const winContainer = document.createElement("div");
-  winText.textContent = "You Win!";
-  main.appendChild(winContainer);
-  winContainer.appendChild(winText);
-  button.classList.toggle("hidden");
-  button.innerHTML = "Restart";
-  winText.appendChild(button);
-  button.addEventListener("click", () => {
+  // Create win screen elements
+  const winScreen = document.createElement("div");
+  winScreen.className = "win-screen";
+
+  const winMessage = document.createElement("div");
+  winMessage.className = "win-message";
+  winMessage.textContent = "🎉 You Win! 🎉";
+
+  const winStats = document.createElement("div");
+  winStats.className = "win-stats";
+  winStats.textContent = `Completed in ${turns} turns`;
+
+  const restartBtn = document.createElement("button");
+  restartBtn.className = "restart-btn";
+  restartBtn.textContent = "Play Again";
+
+  // Assemble win screen
+  winScreen.appendChild(winMessage);
+  winScreen.appendChild(winStats);
+  winScreen.appendChild(restartBtn);
+  document.body.appendChild(winScreen);
+
+  // Handle restart
+  restartBtn.addEventListener("click", () => {
     window.location.reload();
   });
 }
@@ -114,13 +155,13 @@ async function startGame() {
             turnsNumber.innerHTML = turns;
             console.log(flippedCards);
             if (cardFlip) {
-              let timeout = setTimeout(function () {
+              if (window.flipTimeout) {
+                clearTimeout(window.flipTimeout);
+              }
+              window.flipTimeout = setTimeout(function () {
                 unflip(flippedCards);
                 flippedCards = [];
-              }, 4000);
-              while (timeout--) {
-                window.clearTimeout(timeout);
-              }
+              }, 2000);
             }
             if (flippedCards.length === 3) {
               unflip(flippedCards);
@@ -128,18 +169,31 @@ async function startGame() {
             }
 
             if (flippedCards.length === 2) {
-              if (flippedCards[0].innerHTML === flippedCards[1].innerHTML) {
+              const [card1, card2] = flippedCards;
+              if (card1 !== card2 && card1.innerHTML === card2.innerHTML) {
                 pairsCount += 1;
                 console.log(pairsCount);
-                if (pairsCount >= 6) {
-                  win(container, startButton, main);
-                }
 
+                // Add matched class to trigger animation
+                card1.parentElement.classList.add("matched");
+                card2.parentElement.classList.add("matched");
+
+                // Remove cards from DOM after animation completes
                 setTimeout(() => {
-                  flippedCards[0].style.display = "none";
-                  flippedCards[1].style.display = "none";
+                  card1.parentElement.remove();
+                  card2.parentElement.remove();
                   flippedCards = [];
-                }, 1000);
+                  // Check if all pairs are matched (total pairs = doubledCards.length/2)
+                  if (pairsCount === doubledCards.length / 2) {
+                    win(container, startButton, main);
+                  }
+                }, 500);
+              } else if (card1 === card2) {
+                // Same card clicked twice - just unflip it
+                setTimeout(() => {
+                  card1.classList.remove("transform");
+                  flippedCards = flippedCards.filter((card) => card !== card1);
+                }, 500);
               }
             }
           });
